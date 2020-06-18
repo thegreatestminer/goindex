@@ -2,8 +2,7 @@
   
 GoIndex  
 ---
-*Cloudflare Workers + Google Drive Directory Index*
-A modification of the now-defunct GoIndex project developed by [donwa](https://www.github.com/donwa).
+*Cloudflare Workers + Google Drive Directory Index* | A modification of the now-defunct GoIndex project developed by [donwa](https://www.github.com/donwa).
 
 [***Please read LICENSE.md before using this project.***](https://raw.githubusercontent.com/thegreatestminer/goindex/master/LICENSE.md)
 
