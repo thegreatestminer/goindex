@@ -15,7 +15,7 @@ Modifications from the original:
 
 ## How to use
 
-1. Create a Google Drive remote using [rclone](https://rclone.org/). **YOU WILL HAVE TO CREATE YOUR OWN** `client_id` **AND** `client_secret` **VALUES. FOLLOW THIS [GUIDE](https://rclone.org/drive/#making-your-own-client-id) IF YOU DO NOT KNOW HOW TO MAKE ONE.
+1. Create a Google Drive remote using [rclone](https://rclone.org/). **YOU WILL HAVE TO CREATE YOUR OWN** `client_id` **AND** `client_secret` **VALUES. FOLLOW THIS [GUIDE](https://rclone.org/drive/#making-your-own-client-id) IF YOU DO NOT KNOW HOW TO MAKE ONE.**
 2. Run `rclone config file` in a terminal to determine the path for `rclone.conf`.  
 3. Open `rclone.conf` and take note of `client_id`, `client_secret`, `refresh_token`, and `root_folder_id`. If you have designated a shared (team) drive instead of a folder, then **you must create a folder in the selected shared drive, and take note of that new folder's ID.**
 4. Create a worker at [Cloudflare Workers](https://workers.cloudflare.com/).
