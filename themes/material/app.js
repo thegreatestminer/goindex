@@ -68,16 +68,13 @@ function list(path){
 	  <ul class="mdui-list"> 
 	   <li class="mdui-list-item th"> 
 	    <div class="mdui-col-xs-12 mdui-col-sm-7">
-	     文件
-	<i class="mdui-icon material-icons icon-sort" data-sort="name" data-order="more">expand_more</i>
+	     Name
 	    </div> 
 	    <div class="mdui-col-sm-3 mdui-text-right">
-	     修改时间
-	<i class="mdui-icon material-icons icon-sort" data-sort="date" data-order="downward">expand_more</i>
+	     Date modified
 	    </div> 
 	    <div class="mdui-col-sm-2 mdui-text-right">
-	     大小
-	<i class="mdui-icon material-icons icon-sort" data-sort="size" data-order="downward">expand_more</i>
+	     Size
 	    </div> 
 	    </li> 
 	  </ul> 
@@ -97,7 +94,7 @@ function list(path){
     $.post(path,'{"password":"'+password+'"}', function(data,status){
         var obj = jQuery.parseJSON(data);
         if(typeof obj != 'null' && obj.hasOwnProperty('error') && obj.error.code == '401'){
-            var pass = prompt("目录加密, 请输入密码","");
+            var pass = prompt("password","");
             localStorage.setItem('password'+path, pass);
             if(pass != null && pass != ""){
                 list(path);
@@ -145,10 +142,6 @@ function list_files(path,files){
                 });
             }
             var ext = p.split('.').pop();
-            if("|html|php|css|go|java|js|json|txt|sh|md|mp4|webm|avi|bmp|jpg|jpeg|png|gif|m4a|mp3|wav|ogg|mpg|mpeg|mkv|rm|rmvb|mov|wmv|asf|ts|flv|".indexOf(`|${ext.toLowerCase()}|`) >= 0){
-	            p += "?a=view";
-	            c += " view";
-            }
             html += `<li class="mdui-list-item file mdui-ripple" target="_blank"><a gd-type="${item.mimeType}" href="${p}" class="${c}">
 	          <div class="mdui-col-xs-12 mdui-col-sm-7 mdui-text-truncate">
 	          <i class="mdui-icon material-icons">insert_drive_file</i>
@@ -175,168 +168,6 @@ function get_file(path, file, callback){
             callback(d);
         });
 	}
-}
-
-
-
-// 文件展示 ?a=view
-function file(path){
-	var name = path.split('/').pop();
-	var ext = name.split('.').pop().toLowerCase().replace(`?a=view`,"");
-	if("|html|php|css|go|java|js|json|txt|sh|md|".indexOf(`|${ext}|`) >= 0){
-		return file_code(path);
-	}
-
-	if("|mp4|webm|avi|".indexOf(`|${ext}|`) >= 0){
-		return file_video(path);
-	}
-
-	if("|mpg|mpeg|mkv|rm|rmvb|mov|wmv|asf|ts|flv|".indexOf(`|${ext}|`) >= 0){
-		return file_video(path);
-	}
-	
-	if("|mp3|wav|ogg|m4a|".indexOf(`|${ext}|`) >= 0){
-		return file_audio(path);
-	}
-
-	if("|bmp|jpg|jpeg|png|gif|".indexOf(`|${ext}|`) >= 0){
-		return file_image(path);
-	}
-}
-
-// 文件展示 |html|php|css|go|java|js|json|txt|sh|md|
-function file_code(path){
-	var type = {
-		"html":"html",
-		"php":"php",
-		"css":"css",
-		"go":"golang",
-		"java":"java",
-		"js":"javascript",
-		"json":"json",
-		"txt":"Text",
-		"sh":"sh",
-		"md":"Markdown",	
-	};
-	var name = path.split('/').pop();
-	var ext = name.split('.').pop();
-	var href = window.location.origin + path;
-	var content = `
-<div class="mdui-container">
-<pre id="editor" ></pre>
-</div>
-<div class="mdui-textfield">
-	<label class="mdui-textfield-label">下载地址</label>
-	<input class="mdui-textfield-input" type="text" value="${href}"/>
-</div>
-<a href="${href}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
-
-<script src="https://cdn.staticfile.org/ace/1.4.7/ace.js"></script>
-<script src="https://cdn.staticfile.org/ace/1.4.7/ext-language_tools.js"></script>
-	`;
-	$('#content').html(content);
-	
-	$.get(path, function(data){
-		$('#editor').html($('<div/>').text(data).html());
-		var code_type = "Text";
-		if(type[ext] != undefined ){
-			code_type = type[ext];
-		}
-		var editor = ace.edit("editor");
-	    editor.setTheme("ace/theme/ambiance");
-	    editor.setFontSize(18);
-	    editor.session.setMode("ace/mode/"+code_type);
-	    
-	    //Autocompletion
-	    editor.setOptions({
-	        enableBasicAutocompletion: true,
-	        enableSnippets: true,
-	        enableLiveAutocompletion: true,
-	        maxLines: Infinity
-	    });
-	});
-}
-
-// 文件展示 视频 |mp4|webm|avi|
-function file_video(path){
-	var url = window.location.origin + path;
-	var playBtn = `<a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" href="potplayer://${url}"><i class="mdui-icon material-icons">&#xe038;</i>在 potplayer 中播放</a>`;
-	if (/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent)) { //移动端
-	    playBtn = `	<a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" href="intent:${url}#Intent;package=com.mxtech.videoplayer.ad;S.title=${path};end"><i class="mdui-icon material-icons">&#xe039;</i>在mxplayer中播放</a>`;
-	}
-	var content = `
-<div class="mdui-container-fluid">
-	<br>
-	<video class="mdui-video-fluid mdui-center" preload controls>
-	  <source src="${url}" type="video/mp4">
-	</video>
-	<br>${playBtn}
-	<!-- 固定标签 -->
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">下载地址</label>
-	  <input class="mdui-textfield-input" type="text" value="${url}"/>
-	</div>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">HTML 引用地址</label>
-	  <textarea class="mdui-textfield-input"><video><source src="${url}" type="video/mp4"></video></textarea>
-	</div>
-</div>
-<a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
-	`;
-	$('#content').html(content);
-}
-
-// 文件展示 音频 |mp3|m4a|wav|ogg|
-function file_audio(path){
-	var url = window.location.origin + path;
-	var content = `
-<div class="mdui-container-fluid">
-	<br>
-	<audio class="mdui-center" preload controls>
-	  <source src="${url}"">
-	</audio>
-	<br>
-	<!-- 固定标签 -->
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">下载地址</label>
-	  <input class="mdui-textfield-input" type="text" value="${url}"/>
-	</div>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">HTML 引用地址</label>
-	  <textarea class="mdui-textfield-input"><audio><source src="${url}"></audio></textarea>
-	</div>
-</div>
-<a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
-	`;
-	$('#content').html(content);
-}
-
-
-// 图片展示
-function file_image(path){
-	var url = window.location.origin + path;
-	var content = `
-<div class="mdui-container-fluid">
-	<br>
-	<img class="mdui-img-fluid" src="${url}"/>
-	<br>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">下载地址</label>
-	  <input class="mdui-textfield-input" type="text" value="${url}"/>
-	</div>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">HTML 引用</label>
-	  <input class="mdui-textfield-input" type="text" value="<img src='${url}' />"/>
-	</div>
-        <div class="mdui-textfield">
-	  <label class="mdui-textfield-label">Markdown 引用地址</label>
-	  <input class="mdui-textfield-input" type="text" value="![](${url})"/>
-	</div>
-        <br>
-</div>
-<a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
-	`;
-	$('#content').html(content);
 }
 
 
@@ -373,9 +204,9 @@ function utc2beijing(utc_datetime) {
 
 // bytes自适应转换到KB,MB,GB
 function formatFileSize(bytes) {
-    if (bytes>=1000000000) {bytes=(bytes/1000000000).toFixed(2)+' GB';}
-    else if (bytes>=1000000)    {bytes=(bytes/1000000).toFixed(2)+' MB';}
-    else if (bytes>=1000)       {bytes=(bytes/1000).toFixed(2)+' KB';}
+    if (bytes>=1073741824) {bytes=(bytes/1073741824).toFixed(2)+' GB';}
+    else if (bytes>=1048576)    {bytes=(bytes/1048576).toFixed(2)+' MB';}
+    else if (bytes>=1024)       {bytes=(bytes/1024).toFixed(2)+' KB';}
     else if (bytes>1)           {bytes=bytes+' bytes';}
     else if (bytes==1)          {bytes=bytes+' byte';}
     else                        {bytes='';}
